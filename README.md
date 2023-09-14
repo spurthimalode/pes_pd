@@ -132,8 +132,7 @@ OpenLANE flow consists of several stages. By default, all flow steps are run in 
 
 The Skywater PDK files we are working with are described under $PDK_ROOT. There are three subdirectories needed for the workshop:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/6715eac3-4a6f-46e1-8e0b-55dce198bbaa)
-
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/8fa0d00f-e8d3-403c-9fa7-0aab90889531)
 
   1. Skywater-pdk – Contains all the foundry provided PDK related files
   2. Open_pdks – Contains scripts that are used to bridge the gap between closed-source and open-source PDK to EDA tool compatibility
@@ -141,7 +140,7 @@ The Skywater PDK files we are working with are described under $PDK_ROOT. There 
 
 ## Invoking OpenLane
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/731b7b80-1df2-46f9-a7b1-7544e99187a0)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/6f1388c3-b14d-4fe3-9e1f-1ae424b9822d)
 
   - ./flow.tcl is the script which runs the OpenLANE flow
   - OpenLANE can be run interactively or in autonomous mode 
@@ -156,7 +155,8 @@ Different software dependencies are needed to run OpenLANE. To import these into
 ## Design Folder
 All designs run within OpenLANE are extracted from the openlane/designs folder:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/581b2b3e-ac79-45ff-80d0-f2a2c1025a3d)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/27b928d7-a035-4c42-9334-7379c9fe15d3)
+
 
 ## Design Folder Hierarchy
 
@@ -229,10 +229,17 @@ To run floorplan in OpenLANE:
 ```
 run_floorplan
 ```
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/9ccb2e3f-5737-4bc3-b50f-c61c0337b3c5)
+
+config.tcl 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/d7943468-a392-4a17-9a6a-0f4202efc0c8)
 
 As with all other stages, the floorplanning will be run according to configuration settings in the design specific config.tcl file. The output the the floorplanning phase is a DEF file which describes core area and placement of standard cell SITES:
 
-  ![](/images/12.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/2b65a4eb-4ace-4d1b-8fa1-8b71e97840a0)
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/fac06ff3-bdbe-4f57-80bf-de3083531316)
+
 
 ### Viewing Floorplan in Magic
 To view our floorplan in Magic we need to provide three files as input:
@@ -241,10 +248,10 @@ To view our floorplan in Magic we need to provide three files as input:
   2. Def file of floorplan
   3. Merged LEF file
 
-  ![](/images/13.png)
-    
-  ![](/images/14.png)
-
+```
+magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/magic/sky130A.tech lef read ../../tmp/merged.lef def read picorv32a.floorplan.def &
+```
+ ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/5624cf46-c267-4474-87bf-1cc1f2f35365)
 
 ### Placement
 
@@ -258,17 +265,12 @@ To do placement in OpenLANE:
 run_placement
 ```
 
-For placement to converge the overflow value needs to be converging to 0. At the end of placement cell legalization will be reported:
-
-  ![](/images/16.png)
-
 ### Viewing Placement in Magic
 
 To view placement in Magic the command mirrors viewing floorplanning:
 
-  ![](/images/17.png)
-  
-  ![](/images/18.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/72e0c7ed-e596-4ef3-a55f-f5f4cf2537dc)
+
 
 ### Standard Cell Design Flow
 
