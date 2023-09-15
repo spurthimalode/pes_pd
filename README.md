@@ -40,17 +40,28 @@ From conception to product, the ASIC design flow is an iterative process that is
         
 Standard Cells – Standard cells are fixed height and a multiple of unit size width. This width is an integer multiple of the SITE size or the PR boundary. Each standard cell comes with SPICE, HDL, liberty, layout (detailed and abstract) files used by different tools at different stages in the RTL2GDS flow.
 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b05c294d-8d4f-494f-82de-6920ea38406a)
+
   6. Post-Synthesis STA Analysis: Performs setup analysis on different path groups.
 
   7. Floorplanning – Goal is to plan the silicon area and create a robust power distribution network (PDN) to power each of the individual components of the synthesized netlist. In addition, macro placement and blockages must be defined before placement occurs to ensure a legalized GDS file. In power planning we create the ring which is connected to the pads which brings power around the edges of the chip. We also include power straps to bring power to the middle of the chip using higher metal layers which reduces IR drop and electro-migration problem.
 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/41a74be6-ecdd-4ce0-9477-374b814943cf)
+
   8. Placement – Place the standard cells on the floorplane rows, aligned with sites defined in the technology lef file. Placement is done in two steps: Global and Detailed. In Global placement tries to find optimal position for all cells but they may be overlapping and not aligned to rows, detailed placement takes the global placement and legalizes all of the placements trying to adhere to what the global placement wants.
+     
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/378b1e43-c38b-4448-bdc3-533d79e0bc6d)
 
   9. CTS – Clock tree synteshsis is used to create the clock distribution network that is used to deliver the clock to all sequential elements. The main goal is to create a network with minimal skew across the chip. H-trees are a common network topology that is used to achieve this goal.
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/a2195a7b-9752-41b3-8953-9c5a1e9cc33d)
 
   10.  Routing – Implements the interconnect system between standard cells using the remaining available metal layers after CTS and PDN generation. The routing is performed on routing grids to ensure minimal DRC errors.
     
 The Skywater 130nm PDK uses 6 metal layers to perform CTS, PDN generation, and interconnect routing.
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/90bbf2c1-c13e-4af4-b252-c2af2d9e06a1)
+
 Shown below is an example of a base RTL to GDS flow in ASIC design:
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/1de4339c-7d98-41ff-812b-b7531bf73d64)
@@ -207,6 +218,8 @@ In Floorplanning we typically set the:
 
 Two key descriptions of a floorplan are utilization and aspect ratio. The amount of area of the die core the standard cells are taking up is called utilization. Normally we go for 50-70% utilization to, or utilization factor of 0.5-0.7. Keeping within this range allows for optimization of placement and realizable routing of a system. Aspect ratio can specify the shape of your chip by the height of the core area divided by the width of the core area. An aspect ratio of 1 discribes the chip as a square.
 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/829699f8-6843-416c-b692-5985470a7793)
+
 ### Preplaced Cells
 
 Preplaced cells, or MACRO’s, are important to enable hierarchical PnR flow. Preplaced cells enable VLSI engineers to granularize a larger design. In floorplanning we define locations and blockages for preplaced cells. Blockages are needed to ensure no standard cells are mapped where the placeplaced cells are located.
@@ -227,6 +240,12 @@ Pin placement is an essential part of floorplanning to minimize buffering and im
 
 To run floorplan in OpenLANE: 
 ```
+cd OpenLane
+sudo make mount
+./flow.tcl -interactive
+package require openlane 0.9
+prep -design <file_name>
+run_synthesis
 run_floorplan
 ```
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/9ccb2e3f-5737-4bc3-b50f-c61c0337b3c5)
@@ -262,15 +281,31 @@ The next step in the Digital ASIC design flow after floorplanning is placement. 
 
 To do placement in OpenLANE:
 ```
+cd OpenLane
+sudo make mount
+./flow.tcl -interactive
+package require openlane 0.9
+prep -design <file_name>
+run_synthesis
+run_floorplan
 run_placement
 ```
 
 ### Viewing Placement in Magic
 
 To view placement in Magic the command mirrors viewing floorplanning:
+```
+cd ../OpenLane/designs/picorv32a/runs/<most_recent_run>/results/placement/
+magic -T ../git_open_pdks/sky130/magic/sky130.tech lef read ../OpenLane/designs/picorv32a/runs/<most_recent_run>/tmp/merged.nom.lef def read picorv32.def &
+```
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/72e0c7ed-e596-4ef3-a55f-f5f4cf2537dc)
 
+press 's' and then 'v' to align the design to the center of the screen.
+
+Click on the mouse and press 'z' to zoom into a desired part.
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/c1bad6ce-de18-4dc3-963f-17df36db14b8)
 
 ### Standard Cell Design Flow
 
@@ -293,4 +328,331 @@ Characterization is a well-defined flow consisting of the following steps:
   5. Read the parasitic extracted netlist
   6. Apply input or stimulus
   7. Provide necessary simulation commands
-</details?
+
+ ### General Timing characterization parameters
+
+ #### Timing threshold definitions
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b237b3ba-2a51-4e65-917b-94f6b463815d)
+
+Propagation Delay The time difference between when the transitional input reaches 50% of its final value and when the output reaches 50% of its final value.
+```
+Propagation delay=time(out_fall_thr)-time(in_rise_thr)
+```
+Transition Time The time it takes the signal to move between states is the transition time , where the time is measured between 10% and 90% or 20% to 80% of the signal levels.
+```
+Rise transition time = time(slew_high_rise_thr) - time (slew_low_rise_thr)
+Fall transition time = time(slew_high_fall_thr) - time (slew_low_fall_thr)
+```
+</details>
+
+<!-- Day 3 Design Library Cell -->
+<details>
+<summary>Day 3 -- Design Library Cell</summary>
+
+OpenLANE has the benefit of allowing changes to internal switches of the ASIC design flow on the fly. This allows users to experiment with floorplanning and placement without having to reinvoke the tool.
+
+### Spice Simulations
+
+To simulate standard cells spice deck wrappers will need to be created around our model files. 
+
+SPICE deck will comprise of:
+
+  - Model include statements
+  - Component connectivity, including substrate taps
+  - Output load capacitance
+  - Component values
+  - Node names
+  - Simulation commands
+
+To plot the output waveform of the spice deck we will use ngspice. The steps to run the simulation on ngpice are as follows:
+
+  1. Source the .cir spice deck file
+  2. Run the spice file by: run
+  3. Run: setplot → allows you to view any plots possible from the simulations specified in the spice deck
+  4. Select the simulation desired by entering the simulation name in the terminal
+  5. Run: display to see nodes available for plotting
+  6. Run: plot <node> vs <node> to obtain output waveform
+
+### Switching Threshold of a CMOS Inverter 
+
+CMOS cells have three modes of operation:
+
+  - Cutoff - No inversion
+  - Triode - Inversion but no pinchoff in channel
+  - Saturation - Inversion and pinchoff in channel
+
+The voltages at which the switch between the modes of operation happens is dependent on the threshold voltage of the device(s). Threshold voltage is a function of the W/L ratio of a device, therefore varying the W/L ratio will vary the output waveform of CMOS devices. 
+
+To enable efficient description of the varying waveforms a single parameter called switching threshold is used. Switching threshold is defined at the intersection of Vin = Vout. A perfectly symmetrical device will have a switching threshold such that Vin = Vout = VDD/2. 
+
+### 16 Mask CMOS Process Steps
+
+  - Substrate Selection : Selection of base layer on which other regions will be formed.
+  - Create an active region for transistors : SiO2 and Si3N2 deposited. Pockets created using photoresist and lithography.
+  - Nwell & Pwell formation : Pwell uses boron and nwell uses phosphorus. Drive in diffusion by placing it in a high temperature furnace.
+  - Creating Gate terminal : For desired threshold value NA (doping Concentration) and Cox to be set.
+  - Lightly Doped Drain (LDD) formation : LDD done to avoid hot electron effect and short channel effect.
+  - Source and Drain formation : Forming the source and drain.
+  - Contacts & local interconnect Creation : SiO2 removed using HF etch. Titanium deposited using sputtering.
+  - Higher Level metal layer formation : Upper layers of metals deposited.
+
+### Magic Layout View of Inverter Standard Cell
+
+Refer to: https://github.com/nickson-jose/vsdstdcelldesign for cell files.
+
+For easier access to critical files within the lab I suggest doing the following:
+
+  1. Sudo pluma /etc/environment (can open with preferred document viewer)
+  2. Add the following variables to the file:
+
+  ![](/images/19.png)
+
+Replace the file locations as specified in your user hierarchy
+
+To invoke Magic:
+
+  ![](/images/20.png)
+
+  ![](/images/21.png)
+
+### Magic Key Features:
+
+  1. Color Palette - Defines layers and associated colors
+Continuous DRC
+  2. Device Inference - Automatic recognition of NMOS and PMOS devices
+
+### Device Inference
+
+Select the specific layer/device by hovering over the object and pressing, s, iteratively, until you traverse the hierarchy to the specified object:
+
+![](/images/22.png)
+
+Run the what command in the tkcon window:
+
+![](/images/23.png)
+
+### DRC Errors
+
+DRC errors in magic will be highlighted with white dotted lines:
+
+![](/images/24.png)
+
+DRC checks are continuous in Magic, therefore the designer may ensure the design is DRC free during creation instead of performing the iterative DRC checks when the cell layout is completed.
+
+To identify DRC errors select DRC find next error:
+
+![](/images/25.png)
+
+The associated DRC error will be displayed in the tkcon window:
+
+![](/images/26.png)
+
+For more information on DRC errors plase refer to: https://skywater-pdk--136.org.readthedocs.build/en/136/
+For more information on how to fix these DRC errors using Magic please refer to: http://opencircuitdesign.com/magic/
+
+### PEX Extraction with Magic
+
+To extract the parasitic spice file for the associated layout one needs to create an extraction file:
+
+![](/images/27.png)
+
+After generating the extracted file we need to output the .ext file to a spice file:
+
+![](/images/28.png)
+
+![](/images/29.png)
+
+### Spice Wrapper for Simulation
+
+![](/images/30.png)
+
+To run the simulation with ngspice, invoke the ngspice tool with the spice file as input:
+
+![](/images/31.png)
+
+The plot can be viewed by plotting the output vs time while sweeping the input:
+
+![](/images/32.png)
+
+</details>
+<!-- Day 4 Layout Timing Analysis and CTS -->
+
+<details>
+<summary> Day 4 -- Layout Timing Analysis and CTS</summary>
+
+Place and routing (PnR) is performed using an abstract view of the GDS files generated by Magic. The abstract information will include metal and pin information. The PnR tool will use the abstract view information, formally defined as LEF information, to perform interconnect routing in conjunction to routing guides generated from the PnR flow.
+
+### An Introduction to LEF Files
+
+  - Technology LEF - Contains layer information, via information, and restricted DRC rules
+  - Cell LEF - Abstract information of standard cells
+
+![](/images/33.png)
+
+Tracks are used during the routing stage, routes can go over the tracks, or metal traces can go over the tracks. What the file is saying is that for the li1 layer the x or horizontal track is at an offset of 0.23 and a pitch of 0.46. The offset is the distance from the origin to the routing track in either the x or y direction. It is half the pitch so that means the tracks are centered around the origin. 
+
+### Standard Cell Pin Placement
+
+On-track standard cell pin placement is essential for DRC free PnR flow. Pins must align with the li1 and met1 preferred routing directions. During standard cell creation this concept must be accounted for. To ensure a cell is aligned with routing grids in Magic we can display a grid on top of the gds file.
+
+To display the grid in magic:
+
+![](/images/34.png)
+
+Viewing the grid we can ensure our pin placement is optimized for PnR flow:
+
+![](/images/35.png)
+
+### LEF Generation in Magic
+
+Magic allows users to generate cell LEF information directly from the Magic terminal. To generate the cell LEF file from Magic perform:
+
+![](/images/36.png)
+
+Generated cell LEF file:
+
+![](/images/37.png)
+
+### Including Custom Cells in OpenLANE
+
+In order to include the new cells in OpenLANE we need to do some initial configuration:
+  1. Fully characterize new cell with GUNA for specified corners
+  2. Include cell level liberty file in top level liberty file
+  3. Reconfigure synthesis switches in the config.tcl file:
+
+  ![](/images/38.png)
+
+Note: This step will also include any extra LEF files generated for the custom standard cell(s)
+Overwrite previous run to include new configuration switches:
+
+  4. Overwrite previous run to include new configuration switches:
+  
+  ![](/images/39.png)
+
+  5. Add additional statements to include extra cell LEFs:
+  
+  ![](/images/40.png)
+
+  5. Check synthesis logs to ensure cell has been integrated correctly
+
+### Fixing Slack Violations
+
+VLSI engineers will obtain system specifications in the architecture design phase. These specifications will determine a required frequency of operation. To analyze a circuit's timing performance designers will use static timing analysis tools (STA). When referring to pre clock tree synthesis STA analysis we are mainly concerned with setup timing in regards to a launch clock. STA will report problems such as worst negative slack (WNS) and total negative slack (TNS). These refer to the worst path delay and total path delay in regards to our setup timing restraint. Fixing slack violations can be debugged through performing STA analysis with OpenSTA, which is integrated in the OpenLANE tool. To describe these constraints to tools such as In order to ensure correct operation of these tools two steps must be taken:
+
+  1. Design configuration files (.conf) - Tool configuration files for the specified design
+  2. Design Synopsys design constraint (.sdc) files - Industry standard constraints file 
+
+For the design to be complete, the worst negative slack needs to be above or equal to 0. If the slack is outside of this range we can do one of multiple things:
+
+  1. Review our synthesis strategy in OpenLANE
+  2. Enable cell buffering
+  3. Perform manual cell replacement on our WNS path with the OpenSTA tool
+  4. Optimize the fanout value with OpenLANE tool
+
+To invoke OpenSTA with the configuration file:
+
+![](/images/41.png)
+
+### Cell Fanout Example:
+
+![](/images/42.png)
+
+The delay of this cell is large due to a high load capacitance due to high fanout. To fix this problem we can re-run synthesis within OpenLANE after reconfiguring the maximum fanout load value.
+
+### Cell Replacement Example:
+
+![](/images/43.png)
+
+To determine what loads our net is driving in OpenSTA we can report net connecitons:
+
+![](/images/44.png)
+
+To increase the drive strength of our buffer:
+
+![](/images/45.png)
+
+After performing this optimization we can use the write_verilog command of OpenSTA to output the improved netlist for use in the OpenLANE flow:
+
+![](/images/46.png)
+
+### Clock Tree Synthesis
+
+After running floorplan and standard cell placement in OpenLANE we are ready to insert our clock tree for sequential elements in our design. Two of the main concerns with generation of the clock tree are:
+  
+  1. Clock skew - Difference in arrival times of the clock for sequential elements across the design
+  2. Delta delay - Skew introduced through capacitive coupling of the clock tree nets
+
+To run clock tree synthesis (CTS) in OpenLANE:
+
+![](/images/47.png)
+
+Note: To ensure timing constraints CTS will add buffers throughout the clock tree which will modify our netlist
+
+### Viewing Post-CTS Netlist
+
+OpenLANE will generate a new .def file containing information of our design after CTS is performed. To view this netlist we need to invoke the .def file with the Magic tool:
+
+![](/images/48.png)
+
+### Post-CTS STA Analysis
+
+OpenLANE has the OpenROAD application integrated into its flow. The OpenROAD application has OpenSTA integrated into its flow. Therefore, we can perform STA analysis from within OpenLANE by invoking OpenROAD.
+
+To invoke OpenROAD from OpenLANE:
+
+![](/images/49.png)
+
+In OpenROAD the timing analysis is done by creating a .db database file. This database file is created from the post-cts LEF and DEF files. To generate the .db files within OpenROAD:
+
+![](/images/50.png)
+
+Note: Whenever the DEF file changes we need to recreate this .db file
+
+After .db generation users can perform tool configuration followed by reporting the propagated clock timing analysis:
+
+![](/images/51.png)
+</details>
+<!-- Day 5 Final Steps in RTL to GDSII -->
+<details>
+<summary> Day 5--Final Steps in RTL to GDSII</summary>
+
+After generating our clock tree network and verifying post routing STA checks we are ready to generate the power distribution network in OpenLANE:
+
+![](/images/52.png)
+
+### Power Distribution Network Generation
+
+To generate the PDN in OpenLANE:
+
+![](/images/53.png)
+
+The PDN feature within OpenLANE will create:
+  1. Power ring global to the entire core
+  2. Power halo local to any preplaced cells
+  3. Power straps to bring power into the center of the chip
+  4. Power rails for the standard cells
+  
+  ![](/images/54.png)
+
+Note: The pitch of the metal 1 power rails defines the height of the standard cells
+
+### Global and Detailed Routing
+
+OpenLANE uses TritonRoute as the routing engine for physical implementations of designs. Routing consists of two stages:
+
+  1. Global Routing - Routing guides are generated for interconnects on our netlist defining what layers, and where on the chip each of the nets will be reputed
+  2. Detailed Routing - Metal traces are iteratively laid across the routing guides to physically implement the routing guides
+
+### To run routing in OpenLANE:
+
+![](/images/55.png)
+
+If DRC errors persist after routing the user has two options:
+  1. Re-run routing with higher QoR settings
+  2. Manually fix DRC errors specific in tritonRoute.drc file
+
+### SPEF Extraction
+
+After routing has been completed interconnect parasitics can be extracted to perform sign-off post-route STA analysis. The parasitics are extracted into a SPEF file. The SPEF extractor is not included within OpenLANE as of now. 
+</details>
