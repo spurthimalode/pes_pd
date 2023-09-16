@@ -364,7 +364,24 @@ SPICE deck will comprise of:
   - Component values
   - Node names
   - Simulation commands
+```
+*** MODEL DESCRIPTIONS ***
+*** NETLIST DESCRIPTION ***
+M1 out in vdd vdd pmos W=0.375u L=0.25u
+M2 out in 0 0 nmos W=0.375u L=0.25u
 
+cload out 0 10f
+
+Vdd vdd 0 2.5
+Vin in 0 2.5
+*** SIMULATION Commands ***
+
+.op
+.dc Vin 0 2.5 0.05
+*** include tsmc_025um_model.mod ***
+.LIB "tsmc_025um_models.mod" CMOS_MODELS
+.end
+```
 To plot the output waveform of the spice deck we will use ngspice. The steps to run the simulation on ngpice are as follows:
 
   1. Source the .cir spice deck file
@@ -373,6 +390,15 @@ To plot the output waveform of the spice deck we will use ngspice. The steps to 
   4. Select the simulation desired by entering the simulation name in the terminal
   5. Run: display to see nodes available for plotting
   6. Run: plot <node> vs <node> to obtain output waveform
+```
+cd <folder where the .cir file is present>
+source CMOS_INVERTER.cir
+run
+setplot
+dc1
+display
+plot out vs in
+```
 
 ### Switching Threshold of a CMOS Inverter 
 
@@ -386,6 +412,8 @@ The voltages at which the switch between the modes of operation happens is depen
 
 To enable efficient description of the varying waveforms a single parameter called switching threshold is used. Switching threshold is defined at the intersection of Vin = Vout. A perfectly symmetrical device will have a switching threshold such that Vin = Vout = VDD/2. 
 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/6c0914aa-c33e-4f59-9e47-ce2ff0ee30c7)
+
 ### 16 Mask CMOS Process Steps
 
   - Substrate Selection : Selection of base layer on which other regions will be formed.
@@ -396,25 +424,23 @@ To enable efficient description of the varying waveforms a single parameter call
   - Source and Drain formation : Forming the source and drain.
   - Contacts & local interconnect Creation : SiO2 removed using HF etch. Titanium deposited using sputtering.
   - Higher Level metal layer formation : Upper layers of metals deposited.
+    
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/19741afd-eb75-48a4-89c7-1eee413b8719)
+
 
 ### Magic Layout View of Inverter Standard Cell
 
-Refer to: https://github.com/nickson-jose/vsdstdcelldesign for cell files.
-
-For easier access to critical files within the lab I suggest doing the following:
-
-  1. Sudo pluma /etc/environment (can open with preferred document viewer)
-  2. Add the following variables to the file:
-
-  ![](/images/19.png)
-
-Replace the file locations as specified in your user hierarchy
+Git clone : https://github.com/nickson-jose/vsdstdcelldesign for cell files.
 
 To invoke Magic:
 
-  ![](/images/20.png)
+```
+cd Desktop/work/tools/openlane_working_dir/openlane/vsdstdcelldesign
+magic -T sky130A.tech sky130_inv.mag
+```
 
-  ![](/images/21.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/1ef3d7b4-32e3-402d-b1f8-e85bcf14cf89)
+
 
 ### Magic Key Features:
 
@@ -426,54 +452,44 @@ Continuous DRC
 
 Select the specific layer/device by hovering over the object and pressing, s, iteratively, until you traverse the hierarchy to the specified object:
 
-![](/images/22.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/68cf1e13-7196-4b9e-9ed6-164ee442e142)
+
 
 Run the what command in the tkcon window:
 
-![](/images/23.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/c839da23-e2a9-4a3c-9481-2c4cb663d337)
+
 
 ### DRC Errors
 
-DRC errors in magic will be highlighted with white dotted lines:
+To check for DRC Errors, select a region (left click for starting point, right click at end point) and see the DRC column at the top that shows how many DRC errors are present.The associated DRC error will be displayed in the tkcon window:
 
-![](/images/24.png)
-
-DRC checks are continuous in Magic, therefore the designer may ensure the design is DRC free during creation instead of performing the iterative DRC checks when the cell layout is completed.
-
-To identify DRC errors select DRC find next error:
-
-![](/images/25.png)
-
-The associated DRC error will be displayed in the tkcon window:
-
-![](/images/26.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/69a0166f-5d59-48a3-8365-234d60e81e13)
 
 For more information on DRC errors plase refer to: https://skywater-pdk--136.org.readthedocs.build/en/136/
 For more information on how to fix these DRC errors using Magic please refer to: http://opencircuitdesign.com/magic/
 
 ### PEX Extraction with Magic
 
-To extract the parasitic spice file for the associated layout one needs to create an extraction file:
+To extract the parasitic spice file for the associated layout one needs to create an extraction file; After generating the extracted file we need to output the .ext file to a spice file:
 
-![](/images/27.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/4a279659-2105-4b93-81eb-fcd01b1315e6)
 
-After generating the extracted file we need to output the .ext file to a spice file:
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/4f55e41e-025f-419a-b8ef-0b960faf2e49)
 
-![](/images/28.png)
-
-![](/images/29.png)
 
 ### Spice Wrapper for Simulation
 
-![](/images/30.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b7fbb067-a835-4b9e-b14d-c14c0c96d4d6)
 
 To run the simulation with ngspice, invoke the ngspice tool with the spice file as input:
-
-![](/images/31.png)
-
+```
+ngspice sky130_inv.spice
+plot y vs time a
+```
 The plot can be viewed by plotting the output vs time while sweeping the input:
 
-![](/images/32.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/21af853d-4628-4bdd-864b-1ae5949146ab)
 
 </details>
 <!-- Day 4 Layout Timing Analysis and CTS -->
@@ -488,7 +504,8 @@ Place and routing (PnR) is performed using an abstract view of the GDS files gen
   - Technology LEF - Contains layer information, via information, and restricted DRC rules
   - Cell LEF - Abstract information of standard cells
 
-![](/images/33.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/395d32e7-f6ab-4d4e-a47a-2e4e375354fb)
+
 
 Tracks are used during the routing stage, routes can go over the tracks, or metal traces can go over the tracks. What the file is saying is that for the li1 layer the x or horizontal track is at an offset of 0.23 and a pitch of 0.46. The offset is the distance from the origin to the routing track in either the x or y direction. It is half the pitch so that means the tracks are centered around the origin. 
 
@@ -498,21 +515,38 @@ On-track standard cell pin placement is essential for DRC free PnR flow. Pins mu
 
 To display the grid in magic:
 
-![](/images/34.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/50c5ef65-8ca3-4ddf-9746-3f567bd5c937)
+
+
 
 Viewing the grid we can ensure our pin placement is optimized for PnR flow:
 
-![](/images/35.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/bff0731a-8fe1-410a-9154-e2ebc1336c2d)
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/d8d84a4a-ef93-4d9c-9477-2d6ed8eae01f)
 
 ### LEF Generation in Magic
 
 Magic allows users to generate cell LEF information directly from the Magic terminal. To generate the cell LEF file from Magic perform:
+save the modified layout (with new grid)
+```
+save sky130_vsdinv.mag
+```
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b87a9738-c8e1-4c10-84c7-2c40814d5c46)
 
-![](/images/36.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/839857b8-fffe-4d00-ac1d-4a9379b6d2bb)
+
+ Open the file and extract LEF
+ ```
+ magic -T sky130A.tch sky130_vsdinv.mag
+ %lef write 
+ ```
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/d0443fe7-49be-4b4f-8ff5-a11d13d42a39)
 
 Generated cell LEF file:
 
-![](/images/37.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/090a6108-74e6-4507-9081-19121a379466)
+
 
 ### Including Custom Cells in OpenLANE
 
@@ -521,20 +555,27 @@ In order to include the new cells in OpenLANE we need to do some initial configu
   2. Include cell level liberty file in top level liberty file
   3. Reconfigure synthesis switches in the config.tcl file:
 
-  ![](/images/38.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/61fa6d0c-b559-4709-b04b-3f2abddf5303)
+
+ ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/442e0c26-a1ac-499c-8ec4-1c5cb591e913)
+
 
 Note: This step will also include any extra LEF files generated for the custom standard cell(s)
 Overwrite previous run to include new configuration switches:
 
   4. Overwrite previous run to include new configuration switches:
   
-  ![](/images/39.png)
+ ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/d46de607-942c-4181-b574-9165458ef4ad)
+
 
   5. Add additional statements to include extra cell LEFs:
   
-  ![](/images/40.png)
+ ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/08bf330e-f16c-49d6-bf22-60c22d8f0732)
+
 
   5. Check synthesis logs to ensure cell has been integrated correctly
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/3bb39142-7c57-462b-8278-2d6ff9cfc57e)
 
 ### Fixing Slack Violations
 
@@ -619,13 +660,15 @@ After .db generation users can perform tool configuration followed by reporting 
 
 After generating our clock tree network and verifying post routing STA checks we are ready to generate the power distribution network in OpenLANE:
 
-![](/images/52.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/3b7c0d48-3e19-42bf-a671-eaae24df76e8)
+
 
 ### Power Distribution Network Generation
 
 To generate the PDN in OpenLANE:
 
-![](/images/53.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b213115d-e17b-434d-8d56-d0c164f0f217)
+
 
 The PDN feature within OpenLANE will create:
   1. Power ring global to the entire core
@@ -633,7 +676,8 @@ The PDN feature within OpenLANE will create:
   3. Power straps to bring power into the center of the chip
   4. Power rails for the standard cells
   
-  ![](/images/54.png)
+ ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/792a2b75-19b0-4fa2-b8b8-3a548d62022e)
+
 
 Note: The pitch of the metal 1 power rails defines the height of the standard cells
 
@@ -646,7 +690,9 @@ OpenLANE uses TritonRoute as the routing engine for physical implementations of 
 
 ### To run routing in OpenLANE:
 
-![](/images/55.png)
+```
+run-routing
+```
 
 If DRC errors persist after routing the user has two options:
   1. Re-run routing with higher QoR settings
@@ -655,4 +701,9 @@ If DRC errors persist after routing the user has two options:
 ### SPEF Extraction
 
 After routing has been completed interconnect parasitics can be extracted to perform sign-off post-route STA analysis. The parasitics are extracted into a SPEF file. The SPEF extractor is not included within OpenLANE as of now. 
+```
+cd ~/Desktop/work/tools/SPEFEXTRACTOR
+python3 main.py <path to merged.lef in tmp> <path to def in routing>
+```
+The SPEF File will be generated in the location where def file is present
 </details>
