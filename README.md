@@ -593,29 +593,34 @@ For the design to be complete, the worst negative slack needs to be above or equ
 
 To invoke OpenSTA with the configuration file:
 
-![](/images/41.png)
+```
+sta pre_sta.conf
+```
 
 ### Cell Fanout Example:
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/a53adfa8-b4a5-492f-a9de-982566d1bd80)
 
-![](/images/42.png)
 
 The delay of this cell is large due to a high load capacitance due to high fanout. To fix this problem we can re-run synthesis within OpenLANE after reconfiguring the maximum fanout load value.
 
 ### Cell Replacement Example:
 
-![](/images/43.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/2331e07d-7a83-476f-a65c-dbf13426d5b4)
+
 
 To determine what loads our net is driving in OpenSTA we can report net connecitons:
 
-![](/images/44.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/813ec1d9-d1c8-4e7c-9c42-3b93026b26fa)
+
 
 To increase the drive strength of our buffer:
 
-![](/images/45.png)
+```
+OpenSTA> replace_cell_29101_sky130_fd_sc_hd_clkbut_2
+```
 
 After performing this optimization we can use the write_verilog command of OpenSTA to output the improved netlist for use in the OpenLANE flow:
 
-![](/images/46.png)
 
 ### Clock Tree Synthesis
 
@@ -626,7 +631,8 @@ After running floorplan and standard cell placement in OpenLANE we are ready to 
 
 To run clock tree synthesis (CTS) in OpenLANE:
 
-![](/images/47.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b9394eda-ad05-419e-b770-71bf630e095e)
+
 
 Note: To ensure timing constraints CTS will add buffers throughout the clock tree which will modify our netlist
 
@@ -642,17 +648,21 @@ OpenLANE has the OpenROAD application integrated into its flow. The OpenROAD app
 
 To invoke OpenROAD from OpenLANE:
 
-![](/images/49.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/e9000278-e86b-4ea5-8363-3a942b0e5b4f)
 
 In OpenROAD the timing analysis is done by creating a .db database file. This database file is created from the post-cts LEF and DEF files. To generate the .db files within OpenROAD:
 
-![](/images/50.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/6a0dcf2a-8865-4a17-9a50-04c22039b859)
 
-Note: Whenever the DEF file changes we need to recreate this .db file
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/ce86ad83-ccbe-416d-8f19-5b2a48f69e92)
 
-After .db generation users can perform tool configuration followed by reporting the propagated clock timing analysis:
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/aa79c5df-0a87-4d8e-ace9-c7f011184024)
 
-![](/images/51.png)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/260e163d-8d5e-48b2-8a18-34cdac6ab156)
+
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/019c9c14-2e02-49f8-b3ff-64aded1f2b7f)
+
+
 </details>
 <!-- Day 5 Final Steps in RTL to GDSII -->
 <details>
