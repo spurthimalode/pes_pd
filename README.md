@@ -577,6 +577,9 @@ Overwrite previous run to include new configuration switches:
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/3bb39142-7c57-462b-8278-2d6ff9cfc57e)
 
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/42e0ef05-5d7c-4e53-845c-1e717abfa522)
+
+
 ### Fixing Slack Violations
 
 VLSI engineers will obtain system specifications in the architecture design phase. These specifications will determine a required frequency of operation. To analyze a circuit's timing performance designers will use static timing analysis tools (STA). When referring to pre clock tree synthesis STA analysis we are mainly concerned with setup timing in regards to a launch clock. STA will report problems such as worst negative slack (WNS) and total negative slack (TNS). These refer to the worst path delay and total path delay in regards to our setup timing restraint. Fixing slack violations can be debugged through performing STA analysis with OpenSTA, which is integrated in the OpenLANE tool. To describe these constraints to tools such as In order to ensure correct operation of these tools two steps must be taken:
