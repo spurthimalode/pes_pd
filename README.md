@@ -11,56 +11,31 @@
 <details>
 <summary>RTL to GDSII Introduction</summary>
 
-From conception to product, the ASIC design flow is an iterative process that is not static for every design. The details of the flow may change depending on ECO’s, IP requirements, DFT insertion, and SDC constraints, however the base concepts still remain. The flow can be broken down into 11 steps:
+The ASIC design flow is a dynamic and iterative process, subject to variations based on factors like Engineering Change Orders (ECOs), Intellectual Property (IP) requirements, Design for Test (DFT) insertion, and Synchronous Design Constraints (SDC). Despite these potential modifications, the fundamental concepts of the flow can be broken down into 11 steps:
 
-  1. Architectural Design – A system engineer will provide the VLSI engineer with specifications for the system that are determined through physical constraints. The VLSI engineer will be required to design a circuit that meets these constraints at a microarchitecture modeling level.
+1. Architectural Design: This step begins with system engineers providing VLSI engineers with specifications based on physical constraints. VLSI engineers design a circuit at a microarchitecture modeling level that meets these requirements.
 
-  2. RTL Design/Behavioral Modeling – RTL design and behavioral modeling are performed with a hardware description language (HDL). EDA tools will use the HDL to perform mapping of higher-level components to the transistor level needed for physical implementation. HDL modeling is normally performed using either Verilog or VHDL. One of two design methods may be employed while creating the HDL of a microarchitecture:
+2. RTL Design/Behavioral Modeling: Using a Hardware Description Language (HDL) like Verilog or VHDL, this phase involves creating an abstraction of the digital circuit, representing it with combinational logic, registers, and modules (such as IP blocks or Soft Macros).
 
-      a. 	RTL Design – Stands for Register Transfer Level. It provides an abstraction of the digital   circuit using:
-      
-      <ul>
-        <li>i. 	Combinational logic</li>
-        <li>ii. 	Registers</li>
-        <li>iii. 	Modules (IP’s or Soft Macros)</li>
-      </ul>
+3. RTL Verification: Behavioral verification of the RTL design is carried out to ensure that it meets the desired functionality and requirements.
 
-      b. 	Behavioral Modeling – Allows the microarchitecture modeling to be performed with behavior-based modeling in HDL. This method bridges the gap between C and HDL allowing HDL design to be performed
+4. DFT Insertion: Design-for-Test circuitry is inserted into the design to facilitate testing and verification of the ASIC.
 
-  3. RTL Verification - Behavioral verification of design
+5. Logic Synthesis: This process transforms the RTL netlist into a lower-level representation, typically involving two key steps: GTECH mapping and technology mapping. GTECH mapping maps the HDL netlist to generic gates for logical optimization, while technology mapping maps the optimized netlist to standard cells from the Process Design Kit (PDK).
 
-  4. DFT Insertion - Design-for-Test Circuit Insertion
+6. Standard Cells: Standard cells are fixed-height and have a width that is a multiple of the SITE size or PR boundary. They come with various files used by different tools throughout the design flow.
 
-  5. Logic Synthesis – Logic synthesis uses the RTL netlist to perform HDL technology mapping. The synthesis process is normally performed in two major steps:
+7. Post-Synthesis STA Analysis: Setup analysis is performed on different path groups to ensure proper timing constraints are met.
 
-  <ul>
-      <li> GTECH Mapping – Consists of mapping the HDL netlist to generic gates what are used to perform logical optimization based on AIGERs and other topologies created from the generic mapped netlist.</li>
-      <li>Technology Mapping – Consists of mapping the post-optimized GTECH netlist to standard cells described in the PDK</li>
-  </ul>
-        
-Standard Cells – Standard cells are fixed height and a multiple of unit size width. This width is an integer multiple of the SITE size or the PR boundary. Each standard cell comes with SPICE, HDL, liberty, layout (detailed and abstract) files used by different tools at different stages in the RTL2GDS flow.
+8. Floorplanning: The goal here is to plan the silicon area and establish a robust power distribution network (PDN) while defining macro placement and blockages to generate a legal GDS (Graphic Design System) file.
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b05c294d-8d4f-494f-82de-6920ea38406a)
+9. Placement: Standard cells are placed on the floorplan rows, aligned with predefined sites in the technology LEF file. This process occurs in two steps: global placement, which finds initial positions for cells, and detailed placement, which refines these positions to meet global placement guidelines.
 
-  6. Post-Synthesis STA Analysis: Performs setup analysis on different path groups.
+10. CTS (Clock Tree Synthesis): CTS is used to create a clock distribution network that minimizes clock skew across the chip. Common network topologies like H-trees are employed for this purpose.
 
-  7. Floorplanning – Goal is to plan the silicon area and create a robust power distribution network (PDN) to power each of the individual components of the synthesized netlist. In addition, macro placement and blockages must be defined before placement occurs to ensure a legalized GDS file. In power planning we create the ring which is connected to the pads which brings power around the edges of the chip. We also include power straps to bring power to the middle of the chip using higher metal layers which reduces IR drop and electro-migration problem.
+11. Routing: The interconnect system between standard cells is implemented using available metal layers after CTS and PDN generation. Routing is conducted on routing grids to minimize Design Rule Check (DRC) errors.
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/41a74be6-ecdd-4ce0-9477-374b814943cf)
-
-  8. Placement – Place the standard cells on the floorplane rows, aligned with sites defined in the technology lef file. Placement is done in two steps: Global and Detailed. In Global placement tries to find optimal position for all cells but they may be overlapping and not aligned to rows, detailed placement takes the global placement and legalizes all of the placements trying to adhere to what the global placement wants.
-     
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/378b1e43-c38b-4448-bdc3-533d79e0bc6d)
-
-  9. CTS – Clock tree synteshsis is used to create the clock distribution network that is used to deliver the clock to all sequential elements. The main goal is to create a network with minimal skew across the chip. H-trees are a common network topology that is used to achieve this goal.
-
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/a2195a7b-9752-41b3-8953-9c5a1e9cc33d)
-
-  10.  Routing – Implements the interconnect system between standard cells using the remaining available metal layers after CTS and PDN generation. The routing is performed on routing grids to ensure minimal DRC errors.
-    
-The Skywater 130nm PDK uses 6 metal layers to perform CTS, PDN generation, and interconnect routing.
-
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/90bbf2c1-c13e-4af4-b252-c2af2d9e06a1)
+The Skywater 130nm Process Design Kit (PDK) utilizes six metal layers for various purposes, including CTS, PDN generation, and interconnect routing. These layers play a crucial role in achieving optimal performance and reliability in the ASIC design.
 
 Shown below is an example of a base RTL to GDS flow in ASIC design:
 
@@ -71,14 +46,11 @@ Shown below is an example of a base RTL to GDS flow in ASIC design:
 <!-- Workshop Introduction -->
 ## Workshop Introduction
 
-The inputs to the ASIC design flow are:
+The inputs to the ASIC design flow encompass critical components such as Process Design Rules (DRC, LVS, PEX), Device Models (SPICE), Digital Standard Cell Libraries, and I/O Libraries. These foundational elements serve as the building blocks for the design process.
 
-    - Process Design Rules: DRC, LVS, PEX
-    - Device Models (SPICE)
-    - Digital Standard Cell Libraries
-    - I/O Libraries
+The Process Design Kit (PDK) acts as the crucial interface between CAD designers and foundries. It comprises a collection of files that effectively model the fabrication process for Electronic Design Automation (EDA) tools employed in IC design. Traditionally, PDKs have been proprietary and closed-source, posing limitations for open-source Digital ASIC Design initiatives. However, Google and Skywater made a groundbreaking contribution by releasing the world's first open-source PDK on June 30th, 2020. This monumental step has ushered in a new era of open-source EDA tools and has become a driving force for democratizing the ASIC design process.
 
-Process Design Kit (PDK) is the interface between the CAD designers and the foundry. The PDK is a collection of files used to model a fabrication process for the EDA tools used in designing an IC. PDK’s are traditionally closed-source and hence are the limiting factor to open-source Digital ASIC Design. Google and Skywater have broken this stigma and published the world’s first open-source PDK on June 30th, 2020. This breakthrough has been a catalyst for open-source EDA tools. This workshop focuses on using the open-source RTL2GDS EDA tool, OpenLANE, in conjunction with the Skywater 130nm PDK to perform the full RTL2GDS flow as shown below:
+The focus of this workshop is to leverage the power of the open-source RTL2GDS EDA tool, OpenLANE, in conjunction with the Skywater 130nm PDK. This combination enables engineers and designers to execute the complete RTL2GDS flow, thereby taking advantage of the openness and accessibility offered by the Skywater PDK to realize their ASIC design objectives.
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b6505bf2-e179-4d8c-b076-a08ca84a3cb7)
 
@@ -216,7 +188,7 @@ In Floorplanning we typically set the:
 
 ### Aspect Ratio and Utilization Factor
 
-Two key descriptions of a floorplan are utilization and aspect ratio. The amount of area of the die core the standard cells are taking up is called utilization. Normally we go for 50-70% utilization to, or utilization factor of 0.5-0.7. Keeping within this range allows for optimization of placement and realizable routing of a system. Aspect ratio can specify the shape of your chip by the height of the core area divided by the width of the core area. An aspect ratio of 1 discribes the chip as a square.
+In ASIC design, two crucial parameters that define the floorplan of the chip are utilization and aspect ratio. Utilization refers to the proportion of the die core occupied by standard cells, typically targeted within the range of 50-70% or a utilization factor of 0.5-0.7. This range ensures an optimal balance for placement and facilitates feasible routing within the system. Aspect ratio, on the other hand, characterizes the chip's shape by dividing the height of the core area by its width. An aspect ratio of 1 signifies a square-shaped chip, while other ratios define rectangular configurations. These two descriptors play a pivotal role in shaping the physical layout of an integrated circuit.
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/829699f8-6843-416c-b692-5985470a7793)
 
@@ -517,8 +489,6 @@ To display the grid in magic:
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/50c5ef65-8ca3-4ddf-9746-3f567bd5c937)
 
-
-
 Viewing the grid we can ensure our pin placement is optimized for PnR flow:
 
 ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/bff0731a-8fe1-410a-9154-e2ebc1336c2d)
@@ -582,18 +552,23 @@ Overwrite previous run to include new configuration switches:
 
 ### Fixing Slack Violations
 
-VLSI engineers will obtain system specifications in the architecture design phase. These specifications will determine a required frequency of operation. To analyze a circuit's timing performance designers will use static timing analysis tools (STA). When referring to pre clock tree synthesis STA analysis we are mainly concerned with setup timing in regards to a launch clock. STA will report problems such as worst negative slack (WNS) and total negative slack (TNS). These refer to the worst path delay and total path delay in regards to our setup timing restraint. Fixing slack violations can be debugged through performing STA analysis with OpenSTA, which is integrated in the OpenLANE tool. To describe these constraints to tools such as In order to ensure correct operation of these tools two steps must be taken:
+In the architecture design phase of VLSI engineering, system specifications are obtained, which include the required frequency of operation. To assess a circuit's timing performance, static timing analysis (STA) tools are employed, with a particular focus on pre-clock tree synthesis STA analysis, specifically concerning setup timing with respect to a launch clock. STA tools provide valuable insights, reporting issues such as worst negative slack (WNS) and total negative slack (TNS), both related to setup timing constraints. Debugging slack violations can be effectively addressed through STA analysis using OpenSTA, an integrated component within the OpenLANE toolchain.
 
-  1. Design configuration files (.conf) - Tool configuration files for the specified design
-  2. Design Synopsys design constraint (.sdc) files - Industry standard constraints file 
+To ensure the correct operation of these tools and complete the design process, two essential steps must be undertaken:
 
-For the design to be complete, the worst negative slack needs to be above or equal to 0. If the slack is outside of this range we can do one of multiple things:
+1. Design Configuration Files (.conf): These files contain tool configuration settings specific to the design under consideration. They provide essential parameters for guiding the design process.
 
-  1. Review our synthesis strategy in OpenLANE
-  2. Enable cell buffering
-  3. Perform manual cell replacement on our WNS path with the OpenSTA tool
-  4. Optimize the fanout value with OpenLANE tool
+2. Synopsys Design Constraint (.sdc) Files: These files adhere to industry-standard constraints and are crucial for conveying design constraints to the tools accurately.
 
+For a design to be considered complete and reliable, it's imperative that the worst negative slack meets or exceeds 0. If the slack falls outside this desired range, several corrective measures can be taken:
+
+1. Review Synthesis Strategy in OpenLANE: Reevaluate the synthesis approach within OpenLANE to optimize the design for improved timing performance.
+
+2. Enable Cell Buffering: Incorporate cell buffering techniques to enhance signal propagation and mitigate timing issues.
+
+3. Perform Manual Cell Replacement with OpenSTA: Utilize the OpenSTA tool to manually replace cells along the path with worst negative slack (WNS) to optimize timing.
+
+4. Optimize Fanout Value with OpenLANE: Adjust the fanout values using OpenLANE tools to optimize signal distribution and alleviate timing constraints.
 To invoke OpenSTA with the configuration file:
 
 ```
@@ -601,20 +576,18 @@ sta pre_sta.conf
 ```
 
 ### Cell Fanout Example:
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/a53adfa8-b4a5-492f-a9de-982566d1bd80)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/d62413d8-4362-43da-ba79-45fe60319982)
 
 
 The delay of this cell is large due to a high load capacitance due to high fanout. To fix this problem we can re-run synthesis within OpenLANE after reconfiguring the maximum fanout load value.
 
 ### Cell Replacement Example:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/2331e07d-7a83-476f-a65c-dbf13426d5b4)
-
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/0a767186-4368-44fb-97b9-3d496f24bd86)
 
 To determine what loads our net is driving in OpenSTA we can report net connecitons:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/813ec1d9-d1c8-4e7c-9c42-3b93026b26fa)
-
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/70dfdb45-a4bb-4759-8ddb-dbe2f32eac25)
 
 To increase the drive strength of our buffer:
 
@@ -634,16 +607,10 @@ After running floorplan and standard cell placement in OpenLANE we are ready to 
 
 To run clock tree synthesis (CTS) in OpenLANE:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b9394eda-ad05-419e-b770-71bf630e095e)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/40f826fb-e727-4038-b44f-e4e883d2984f)
 
 
 Note: To ensure timing constraints CTS will add buffers throughout the clock tree which will modify our netlist
-
-### Viewing Post-CTS Netlist
-
-OpenLANE will generate a new .def file containing information of our design after CTS is performed. To view this netlist we need to invoke the .def file with the Magic tool:
-
-![](/images/48.png)
 
 ### Post-CTS STA Analysis
 
@@ -651,20 +618,20 @@ OpenLANE has the OpenROAD application integrated into its flow. The OpenROAD app
 
 To invoke OpenROAD from OpenLANE:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/e9000278-e86b-4ea5-8363-3a942b0e5b4f)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/50eb437a-1923-4ef2-ab1b-de128e3627d6)
+
 
 In OpenROAD the timing analysis is done by creating a .db database file. This database file is created from the post-cts LEF and DEF files. To generate the .db files within OpenROAD:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/6a0dcf2a-8865-4a17-9a50-04c22039b859)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/07127a9c-6626-4b31-bf4a-a36e1eddd14f)
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/ce86ad83-ccbe-416d-8f19-5b2a48f69e92)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/2aef56eb-7d4f-4f00-a5b5-8150a82e6462)
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/aa79c5df-0a87-4d8e-ace9-c7f011184024)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/9f65cb82-f72a-4932-b868-ac2187a60ba5)
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/260e163d-8d5e-48b2-8a18-34cdac6ab156)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/ed4206a9-e9cf-41d8-85be-a67916743220)
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/019c9c14-2e02-49f8-b3ff-64aded1f2b7f)
-
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/c0bb7541-cd45-4092-8386-dcd8ff0fdf28)
 
 </details>
 <!-- Day 5 Final Steps in RTL to GDSII -->
@@ -680,7 +647,8 @@ After generating our clock tree network and verifying post routing STA checks we
 
 To generate the PDN in OpenLANE:
 
-![image](https://github.com/spurthimalode/pes_pd/assets/142222859/b213115d-e17b-434d-8d56-d0c164f0f217)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/990eefb5-419c-4b2e-a6a4-ad8296581d21)
+
 
 
 The PDN feature within OpenLANE will create:
@@ -689,7 +657,7 @@ The PDN feature within OpenLANE will create:
   3. Power straps to bring power into the center of the chip
   4. Power rails for the standard cells
   
- ![image](https://github.com/spurthimalode/pes_pd/assets/142222859/792a2b75-19b0-4fa2-b8b8-3a548d62022e)
+![image](https://github.com/spurthimalode/pes_pd/assets/142222859/eb147246-d5ec-43b7-ae9c-f111bb1b0caa)
 
 
 Note: The pitch of the metal 1 power rails defines the height of the standard cells
